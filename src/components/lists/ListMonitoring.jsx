@@ -3,6 +3,7 @@ import Swal from 'sweetalert2'
 import axios from 'axios';
 
 const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }) => {
+
     const handleModalEliminar = async (monitoring) => {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
@@ -62,8 +63,58 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
         }
     }
 
-    const handleNotificar = (item) => {
+    const sendEmail= async(monitoring,result)=>{
+        try {
+            const {course,idMonitor,date,classroom} =monitoring;
+            const params={
+                course,
+                idMonitor,
+                date:formatDate(date),
+                classroom,
+                message:result.value
+            }
+            const res = await axios.post('http://localhost:3010/api/monitoring/notifyMonitor/',params).catch(e => {
+                console.error(e)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                })
+            })
+            const data =  await res.data.messageId;
+            if (data) {
+                Swal.fire(
+                    'Enviado',
+                    'La notificacion ha sido enviado con exito.',
+                    'success'
+                )
+            } else {
+                console.log(res.data)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Error al tratar de enviar la notificacion al monitor'
+                })
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
+    const handleNotificar = (monitoring) => {
+        Swal.fire({
+            title: 'Ingrese el mensaje para recordatorio',
+            input: 'text',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Enviar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sendEmail(monitoring,result)
+            }
+        })
     }
 
     const formatDate = (date) => {
@@ -79,6 +130,7 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
 
         return [year, month, day].join('-');
     }
+
     return (
         <>
             {

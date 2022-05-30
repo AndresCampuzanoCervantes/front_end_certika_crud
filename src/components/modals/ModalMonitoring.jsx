@@ -119,6 +119,7 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
             const data = res.data.affectedRows;
             if (data) {
                 params.id = id
+                params.idMonitor= listMonitor.filter(item => item.id===parseInt(monitor))[0]
                 const listaMonitoring=listMonitoring.map(item => item.id===params.id?params:item)
                 setListMonitoring(listaMonitoring)
             } else {

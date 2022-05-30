@@ -19,7 +19,7 @@ const MenuBar = ({ nameMenu }) => {
         },
         {
             nameMenu: "Salir",
-            url: 'home',
+            url: 'exit',
         }
     ]
 

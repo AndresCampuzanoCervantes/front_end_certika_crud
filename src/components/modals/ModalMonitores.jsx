@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Button } from 'react-bootstrap'
-import photoDefault from '../assets/photo_uploaded/download.png'
+import photoDefault from '../../assets/photo_uploaded/photo_Default.png'
 import Swal from 'sweetalert2'
 import axios from 'axios';
 

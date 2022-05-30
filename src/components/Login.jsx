@@ -3,13 +3,22 @@ import React from 'react'
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import { useNavigate } from "react-router-dom";
-const Login = () => {
-  const [email,setEmail] =React.useState('')
-  const [password,setPassword] =React.useState('')
+import '../assets/styles/login.css'
+
+const Login = ({ signOff = false }) => {
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
   const history = useNavigate();
-  const startLogin= () => {
+
+  const signOffActive = () => {
+    if (signOff) {
+      localStorage.clear();
+      window.location.href = '/login'
+    }
+  }
+  signOffActive()
+  const startLogin = () => {
     const params = JSON.parse(localStorage.getItem('session')) ?? null;
-    console.log(params);
     if (params || params !== null) {
       //history('/login')
       window.location.href = '/home'
@@ -25,7 +34,7 @@ const Login = () => {
         password
       }
 
-      const res= await axios.post('http://localhost:3010/api/user/login',
+      const res = await axios.post('http://localhost:3010/api/user/login',
         params
       ).catch(e => {
         console.error(e)
@@ -35,19 +44,19 @@ const Login = () => {
           text: 'Error de conexion con el servidor comuniquese con el administrador.'
         })
       })
-      const data= res.data;
-      if (data.status === 'success'){
+      const data = res.data;
+      if (data.status === 'success') {
         localStorage.setItem('session', JSON.stringify(res));
         history('/home')
-      }else{
+      } else {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
           text: data.error.msg
         })
       }
-      
-      
+
+
       //return res;
     } catch (error) {
       console.error(error);
@@ -63,11 +72,11 @@ const Login = () => {
     //  history('/home')
   }
 
-  const handleEmail= async (e) => {
+  const handleEmail = async (e) => {
     setEmail(e.target.value)
   }
 
-  const handlePassword= async (e) => {
+  const handlePassword = async (e) => {
     setPassword(e.target.value)
   }
   return (
@@ -84,24 +93,32 @@ const Login = () => {
               <form onSubmit={handleSubmit} >
                 <div className="form-outline mb-4 ">
                   <label className="form-label" htmlFor="email">Correo Electronico</label>
-                  <input 
+                  <input
                     type="email"
-                    id="email" 
+                    id="email"
                     value={email}
                     onChange={handleEmail}
                     className="form-control" />
                 </div>
                 <div className="form-outline mb-4">
                   <label className="form-label" htmlFor="password">Contraseña</label>
-                  <input 
-                    type="password" 
-                    id="password" 
-                    className="form-control form-control-lg" 
+                  <input
+                    type="password"
+                    id="password"
+                    className="form-control form-control-lg"
                     value={password}
                     onChange={handlePassword}
-                    />
+                  />
                 </div>
                 <button type="submit" className="btn btn-primary btn-lg btn-block col-12" id='initSession'>Iniciar sesión</button>
+
+                <div className="divider d-flex align-items-center my-4">
+                  <p className="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
+                </div>
+
+                <div className="d-flex justify-content-around align-items-center mb-4">
+                  <a href="#" className="text-decoration-none" onClick={()=>{}}>Crear un nuevo usuario</a>
+                </div>
               </form>
             </div>
           </div>

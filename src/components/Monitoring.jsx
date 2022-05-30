@@ -2,8 +2,8 @@ import React from 'react'
 import MenuBar from './MenuBar'
 import Swal from 'sweetalert2'
 import axios from 'axios';
-import ListMonitoring from './ListMonitoring';
-import ModalMonitoring from './ModalMonitoring';
+import ListMonitoring from './lists/ListMonitoring';
+import ModalMonitoring from './modals/ModalMonitoring';
 
 const Monitoring = () => {
     const [listMonitoring, setListMonitoring] = React.useState([])
@@ -45,16 +45,16 @@ const Monitoring = () => {
     const verificarToken = () => {
         const params = JSON.parse(localStorage.getItem('session')) ?? null;
         if (!params || params === null) {
-            //history('/login')
+            Swal.fire('Sesión expirada, por favor vuelva a iniciar sesión.')
             window.location.href = '/login'
         }
     }
 
     const handleModalEditar = (monitoring) => {
-        const {id,course,idMonitor,date,classroom}= monitoring
-        const monitoringEdit={
+        const { id, course, idMonitor, date, classroom } = monitoring
+        const monitoringEdit = {
             id,
-            monitor:idMonitor.id,
+            monitor: idMonitor.id,
             course,
             date,
             classroom
@@ -63,7 +63,10 @@ const Monitoring = () => {
         handleModalMonitoring()
     }
 
-    verificarToken()
+    React.useEffect(() => {
+        verificarToken()
+    })
+
 
     return (
         <>

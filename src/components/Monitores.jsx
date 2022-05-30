@@ -1,9 +1,9 @@
 import React from 'react'
 import MenuBar from './MenuBar'
-import ModalMonitores from './ModalMonitores';
+import ModalMonitores from './modals/ModalMonitores';
 import Swal from 'sweetalert2'
 import axios from 'axios';
-import ListMonitores from './ListMonitores';
+import ListMonitores from './lists/ListMonitores';
 
 const Monitores = () => {
     const [listaMonitor, setListaMonitor] = React.useState([]);
@@ -46,15 +46,16 @@ const Monitores = () => {
     }
 
     const verificarToken = () => {
-
         const params = JSON.parse(localStorage.getItem('session')) ?? null;
-        console.log(params);
         if (!params || params === null) {
-            //history('/login')
+            Swal.fire('Sesión expirada, por favor vuelva a iniciar sesión.')
             window.location.href = '/login'
         }
     }
-    verificarToken()
+
+    React.useEffect(() => {
+        verificarToken()
+    })
 
     return (
         <>
