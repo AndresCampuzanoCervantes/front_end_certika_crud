@@ -3,6 +3,7 @@ import { Modal, Button } from 'react-bootstrap'
 import photoDefault from '../../assets/photo_uploaded/photo_Default.png'
 import Swal from 'sweetalert2'
 import axios from 'axios';
+import PropTypes from 'prop-types'
 
 const ModalMonitores = ({ showModal, handleModal, listMonitor, setListmonitor, monitorEdit, setMonitorEdit }) => {
     const [id, setId] = React.useState('')
@@ -31,18 +32,30 @@ const ModalMonitores = ({ showModal, handleModal, listMonitor, setListmonitor, m
             const res = await axios.post('http://localhost:3010/api/monitor/createMonitor',
                 params
             ).catch(e => {
-                console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                console.error(e);
+                if (Object.keys(e.response.data).length !== 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
             const data = res.data;
             if (data.id) {
                 params.id = data.id
-                setListmonitor( [...listMonitor,params])
-                //setFlag(1)
+                setListmonitor([...listMonitor, params])
+                Swal.fire(
+                    'Creado',
+                    'El monito se ha registrado con exito.',
+                    'success'
+                )
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -71,18 +84,31 @@ const ModalMonitores = ({ showModal, handleModal, listMonitor, setListmonitor, m
             const res = await axios.put('http://localhost:3010/api/monitor/editMonitor/' + id,
                 params
             ).catch(e => {
-                console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                console.error(e);
+                if (Object.keys(e.response.data).length !== 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
             const data = res.data;
-            if (data.affectedRows===1) {
+            if (data.affectedRows === 1) {
                 params.id = id
-                const listaMonitor = listMonitor.map(item=>item.id===id?params:item)
+                const listaMonitor = listMonitor.map(item => item.id === id ? params : item)
                 setListmonitor(listaMonitor)
+                Swal.fire(
+                    'actualizado',
+                    'Los datos del monitor han sido actualizado con exito.',
+                    'success'
+                )
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -327,8 +353,6 @@ const ModalMonitores = ({ showModal, handleModal, listMonitor, setListmonitor, m
         setDataEdit()
     }, [monitorEdit])
 
-
-
     return (
         <Modal show={showModal} onHide={cancelar}>
             <Modal.Header closeButton>
@@ -419,6 +443,22 @@ const ModalMonitores = ({ showModal, handleModal, listMonitor, setListmonitor, m
             </Modal.Footer>
         </Modal>
     )
+}
+
+ModalMonitores.propTypes = {
+    showModal: PropTypes.bool.isRequired,
+    handleModal: PropTypes.func.isRequired,
+    setFlag: PropTypes.func.isRequired,
+    setListmonitor: PropTypes.func.isRequired,
+    monitorEdit: PropTypes.object.isRequired,
+    setMonitorEdit: PropTypes.func.isRequired,
+    listMonitor: PropTypes.array.isRequired
+}
+
+ModalMonitores.defaultProps = {
+    showModal: false,
+    monitorEdit: {},
+    listMonitoring: []
 }
 
 export default ModalMonitores

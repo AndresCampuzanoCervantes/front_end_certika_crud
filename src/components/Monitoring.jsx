@@ -14,12 +14,20 @@ const Monitoring = () => {
     React.useEffect(() => {
         const conusltarMonitores = async () => {
             const res = await axios.get('http://localhost:3010/api/monitoring/findAllMonitoring').catch(e => {
-                console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                console.error(e);
+                if (Object.keys(e.response.data).length!==0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
             const data = res.data;
             if (data.length > 0) {

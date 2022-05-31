@@ -1,6 +1,8 @@
 import React from 'react'
 import Swal from 'sweetalert2'
 import axios from 'axios';
+import PropTypes from 'prop-types'
+import 'animate.css'
 
 const ListMonitores = ({ listaMonitro, handleModalEditar, setListmonitor }) => {
 
@@ -24,12 +26,20 @@ const ListMonitores = ({ listaMonitro, handleModalEditar, setListmonitor }) => {
         if (result.isConfirmed) {
             try {
                 const res = await axios.delete('http://localhost:3010/api/monitor/deleteMonitor/' + minitor.id).catch(e => {
-                    console.error(e)
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                    })
+                    console.error(e);
+                    if (Object.keys(e.response.data).length !== 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                        })
+                    }
                 })
                 const data = res.data;
                 if (data.affectedRows === 1) {
@@ -66,7 +76,8 @@ const ListMonitores = ({ listaMonitro, handleModalEditar, setListmonitor }) => {
         <>
             {
                 listaMonitro.map((item, index) => (
-                    <tr className={(index + 1) % 2 === 0 ? 'table-active' : ''} key={item.id}>
+                    <tr className={(index ) % 2 === 0 ? 'table-active animate__animated animate__fadeIn animate__faster animate__delay-1s' : 'animate__animated animate__fadeIn animate__faster animate__delay-1s'} 
+                        key={item.id}>
                         <td className="fw-bold"><img src={item.photo} alt={`${item.name} ${item.lastName}`} width="150" height="150" border="0" /></td>
                         <td className="text-wrap text-center align-middle">{item.identification}</td>
                         <td className="text-wrap text-center align-middle">{item.name}</td>
@@ -85,5 +96,16 @@ const ListMonitores = ({ listaMonitro, handleModalEditar, setListmonitor }) => {
         </>
     )
 }
+
+ListMonitores.propTypes = {
+    handleModalEditar: PropTypes.func.isRequired,
+    setListmonitor: PropTypes.func.isRequired,
+    listaMonitro: PropTypes.array.isRequired
+}
+
+ListMonitores.defaultProps = {
+    listaMonitro: []
+}
+
 
 export default ListMonitores

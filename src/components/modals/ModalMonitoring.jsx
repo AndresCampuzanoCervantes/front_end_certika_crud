@@ -2,6 +2,7 @@ import React from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import axios from 'axios';
+import PropTypes from 'prop-types'
 
 const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitoring, setFlag, setListMonitoring }) => {
 
@@ -36,7 +37,13 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
 
     }
 
+    const formatToDate= (date) => {
+        const arrayDate =date.split('-');
+        return new Date(arrayDate[0],arrayDate[1]-1,arrayDate[2])
+    }
+
     const validateData = () => {
+        
         if (course.length === 0) {
             Swal.fire({
                 icon: 'error',
@@ -67,6 +74,16 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
             return false;
         }
 
+        if(formatToDate(date)<=Date.now()){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'La fecha debe ser menor a la actual.'
+            })
+            enableButtons()
+            return false;
+        }
+
         if (classroom.length === 0) {
             Swal.fire({
                 icon: 'error',
@@ -76,6 +93,7 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
             enableButtons()
             return false;
         }
+
         return true;
     }
 
@@ -109,12 +127,20 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
             const res = await axios.put('http://localhost:3010/api/monitoring/editMonitoring/' + id,
                 params
             ).catch(e => {
-                console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                console.error(e);
+                if (Object.keys(e.response.data).length!==0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
             const data = res.data.affectedRows;
             if (data) {
@@ -122,6 +148,11 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
                 params.idMonitor= listMonitor.filter(item => item.id===parseInt(monitor))[0]
                 const listaMonitoring=listMonitoring.map(item => item.id===params.id?params:item)
                 setListMonitoring(listaMonitoring)
+                Swal.fire(
+                    'Actualizado',
+                    'Los datos de la monitoria han sido actualizado exitosamente.',
+                    'success'
+                )
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -157,19 +188,33 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
             const res = await axios.post('http://localhost:3010/api/monitoring/createMonitoring',
                 params
             ).catch(e => {
-                console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                console.error(e);
+                if (Object.keys(e.response.data).length!==0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
-            const data = res.data.id;
-            if (data) {
-                params.id = data
+            const data = res.data;
+            if (data.id) {
+                params.id = data.id
+                params.idMonitor= listMonitor.filter(item => item.id===parseInt(monitor))[0]
                 setListMonitoring([...listMonitoring, params])
                 setFlag(1)
                 handleModal()
+                Swal.fire(
+                    'Registrado',
+                    'Los datos de la monitoria han sido registrado exitosamente.',
+                    'success'
+                )
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -202,11 +247,19 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
         const conusltarMonitores = async () => {
             const res = await axios.get('http://localhost:3010/api/monitor/findAllMonitores').catch(e => {
                 console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                if (Object.keys(e.response.data).length!==0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
             const data = res.data;
             if (data.length > 0) {
@@ -241,7 +294,7 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
     return (
         <Modal show={showModal} onHide={cancelar}>
             <Modal.Header closeButton>
-                <h5 className="title">Registro de Monitor</h5>
+                <h5 className="title">Registro de Monitorias</h5>
             </Modal.Header>
             <Modal.Body>
                 <label htmlFor="course" className='col-12 fw-bold'>Curso:</label>
@@ -297,6 +350,21 @@ const ModalMonitoring = ({ showModal, handleModal, monitoringEdit, listMonitorin
         </Modal>
     )
 
+}
+
+ModalMonitoring.propTypes = {
+    showModal: PropTypes.bool.isRequired,
+    handleModal: PropTypes.func.isRequired,
+    setFlag: PropTypes.func.isRequired,
+    setListMonitoring: PropTypes.func.isRequired,
+    monitoringEdit: PropTypes.object.isRequired,
+    listMonitoring: PropTypes.array.isRequired
+}
+
+ModalMonitoring.defaultProps = {
+    showModal: false,
+    monitoringEdit: {},
+    listMonitoring: []
 }
 
 export default ModalMonitoring

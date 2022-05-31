@@ -1,6 +1,7 @@
 import React from 'react'
 import { Nav, Offcanvas, Navbar, Container } from 'react-bootstrap'
 import PropTypes from 'prop-types'
+import '../assets/styles/menuBar.css'
 const MenuBar = ({ nameMenu }) => {
     const [showMenu, setShowMenu] = React.useState(false)
 
@@ -23,20 +24,13 @@ const MenuBar = ({ nameMenu }) => {
         }
     ]
 
-    //object css 
-    const styleNav = {
-        padding: "10px",
-        width: "300px"
-
-    }
-
     return (
         <>
             <Navbar bg="primary" expand={false} className="mb-3">
                 <Container fluid>
                     <Navbar.Offcanvas
+                        className="Navbar-Offcanvas"
                         placement="start"
-                        style={styleNav}
                         show={showMenu}
                         onHide={() => setShowMenu(false)}
                     >

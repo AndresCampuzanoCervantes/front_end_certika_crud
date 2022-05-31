@@ -1,6 +1,7 @@
 import React from 'react'
 import Swal from 'sweetalert2'
 import axios from 'axios';
+import PropTypes from 'prop-types'
 
 const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }) => {
 
@@ -26,11 +27,19 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
             try {
                 const res = await axios.delete('http://localhost:3010/api/monitoring/deleteMonitoring/' + monitoring.id).catch(e => {
                     console.error(e)
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                    })
+                    if (Object.keys(e.response.data).length !== 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                        })
+                    }
                 })
                 const data = res.data;
                 if (data.affectedRows === 1) {
@@ -57,7 +66,7 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
         } else if (result.dismiss === Swal.DismissReason.cancel) {
             swalWithBootstrapButtons.fire(
                 'Cancelado',
-                '',
+                'Oops...',
                 'error'
             )
         }
@@ -74,12 +83,20 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
                 message:result.value
             }
             const res = await axios.post('http://localhost:3010/api/monitoring/notifyMonitor/',params).catch(e => {
-                console.error(e)
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Error de conexion con el servidor comuniquese con el administrador.'
-                })
+                console.error(e);
+                if (Object.keys(e.response.data).length!==0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: e.response.data.errors[0].msg + ',  ERROR:' + e.response.status
+                    })
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error de conexion con el servidor comuniquese con el administrador.'
+                    })
+                }
             })
             const data =  await res.data.messageId;
             if (data) {
@@ -135,7 +152,8 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
         <>
             {
                 listMonitoring.map((item, index) => (
-                    <tr className={(index + 1) % 2 === 0 ? 'table-active' : ''} key={item.id}>
+                    <tr className={(index ) % 2 === 0 ? 'table-active animate__animated animate__fadeIn animate__faster animate__delay-1s' : 'animate__animated animate__fadeIn animate__faster animate__delay-1s'} 
+                        key={item.id}>
                         <td className="fw-bold"><img src={item.idMonitor.photo} alt={`${item.idMonitor.name} ${item.idMonitor.lastName}`} width="150" height="150" border="0" /></td>
                         <td className="text-wrap text-center align-middle">{item.course}</td>
                         <td className="text-wrap text-center align-middle">{formatDate(item.date)}</td>
@@ -155,6 +173,16 @@ const ListMonitoring = ({ listMonitoring, handleModalEditar, setListMonitoring }
             }
         </>
     )
+}
+
+ListMonitoring.propTypes = {
+    handleModalEditar: PropTypes.func.isRequired,
+    setListMonitoring: PropTypes.func.isRequired,
+    listMonitoring: PropTypes.array.isRequired
+}
+
+ListMonitoring.defaultProps = {
+    listMonitoring: []
 }
 
 export default ListMonitoring

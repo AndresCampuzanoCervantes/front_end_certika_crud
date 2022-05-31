@@ -5,6 +5,7 @@ import '../assets/styles/home.css'
 import arrow_home from '../assets/photo_uploaded/arrow_home.png'
 
 const Home = () => {
+
   const verificarToken = () => {
     const params = JSON.parse(localStorage.getItem('session')) ?? null;
     if (!params || params === null) {
@@ -12,6 +13,7 @@ const Home = () => {
       window.location.href = '/login'
     }
   }
+  
   React.useEffect(() => {
     verificarToken()
   })
